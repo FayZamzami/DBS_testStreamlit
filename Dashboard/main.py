@@ -3,6 +3,23 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+# Cek apakah file dataset tersedia secara lokal
+file_path = "cleaned_main_data.csv"
+github_url = "https://raw.githubusercontent.com/FayZamzami/DBS_testStreamlit/main/Dashboard/cleaned_main_data.csv"
+
+if not os.path.exists(file_path):  # Jika file tidak ditemukan, ambil dari GitHub
+    st.warning("⚠️ File tidak ditemukan secara lokal. Mengunduh dari GitHub...")
+    try:
+        response = requests.get(github_url)
+        if response.status_code == 200:
+            with open(file_path, "wb") as f:
+                f.write(response.content)
+            st.success("✅ Dataset berhasil diunduh dari GitHub!")
+        else:
+            st.error(f"❌ Gagal mengunduh dataset. Error {response.status_code}")
+    except Exception as e:
+        st.error(f"❌ Terjadi kesalahan saat mengunduh dataset: {e}")
+
 # Load Data
 df = pd.read_csv("cleaned_main_data.csv", parse_dates=["order_purchase_timestamp", "order_delivered_customer_date"])
 
