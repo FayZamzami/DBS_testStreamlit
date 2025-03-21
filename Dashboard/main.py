@@ -5,7 +5,7 @@ import os
 from datetime import datetime
 
 # Load dataset
-DATA_PATH = "cleaned_main_data.csv"
+DATA_PATH = "./Dashboard/cleaned_main_data.csv"
 df = pd.read_csv(DATA_PATH, parse_dates=[
     "order_purchase_timestamp", "order_approved_at", "order_delivered_carrier_date",
     "order_delivered_customer_date", "order_estimated_delivery_date"
