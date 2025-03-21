@@ -56,12 +56,7 @@ col1, col2 = st.columns(2)
 col1.metric("Total Orders", f"{filtered_df['order_id'].nunique():,}")
 col2.metric("Total Revenue", f"${filtered_df['payment_value'].sum():,.2f}")
 
-# Menampilkan Gambar yang Diupload
-st.subheader("🖼️ Gambar yang Diupload")
-uploaded_files = ["image.png"]  # Nama file yang telah diunggah
-for file in uploaded_files:
-    if os.path.exists(file):
-        st.image(file, caption=f"Gambar: {file}", use_column_width=True)
+
 
 # Daily Orders
 st.subheader("📅 Daily Orders")
