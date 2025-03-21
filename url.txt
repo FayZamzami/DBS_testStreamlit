@@ -1,0 +1,5 @@
+GitHub : https://github.com/FayZamzami/DBS_testStreamlit
+
+Deploy : https://faysdataweb.streamlit.app/
+
+ipynb google colab : https://colab.research.google.com/drive/18AyV-tHziW9hsGKoscNeXuZMospnxAzV?usp=sharing 
