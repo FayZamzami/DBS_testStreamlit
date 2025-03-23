@@ -6,7 +6,7 @@ import os
 from datetime import datetime
 
 # Load dataset
-DATA_PATH = "./Dashboard/cleaned_main_data.csv"
+DATA_PATH = "cleaned_main_data.csv"
 df = pd.read_csv(DATA_PATH, parse_dates=[
     "order_purchase_timestamp", "order_approved_at", "order_delivered_carrier_date",
     "order_delivered_customer_date", "order_estimated_delivery_date"
@@ -38,6 +38,12 @@ selected_payment = st.sidebar.selectbox("Pilih Metode Pembayaran:", ["Semua"] + 
 
 # Filter Data
 filtered_df = df.copy()
+filtered_df = filtered_df[(filtered_df["order_purchase_timestamp"].dt.date >= start_date) &
+                          (filtered_df["order_purchase_timestamp"].dt.date <= end_date)]
+if selected_category != "Semua":
+    filtered_df = filtered_df[filtered_df["product_category_name"] == selected_category]
+if selected_payment != "Semua":
+    filtered_df = filtered_df[filtered_df["payment_type"] == selected_payment]
 
 # Apply date filter
 filtered_df = filtered_df[(filtered_df["order_purchase_timestamp"].dt.date >= start_date) & 
@@ -150,6 +156,28 @@ st.pyplot(fig)
 
 # Hubungan Metode Pembayaran dan Jumlah Transaksi
 st.subheader("💳 Hubungan Metode Pembayaran dan Jumlah Transaksi")
+
+payment_data = (
+    filtered_df.groupby("payment_type")["order_id"]
+    .count()
+    .sort_values(ascending=False)
+)
+
+# Membuat visualisasi
+fig, ax = plt.subplots(figsize=(10, 6))
+payment_data.plot(kind='bar', ax=ax, color='steelblue', edgecolor='black')
+
+# Menambahkan judul dan label
+ax.set_title("Distribusi Jumlah Transaksi Berdasarkan Metode Pembayaran", fontsize=14)
+ax.set_xlabel("Metode Pembayaran", fontsize=12)
+ax.set_ylabel("Jumlah Transaksi", fontsize=12)
+
+# Rotasi label sumbu X agar miring
+plt.xticks(rotation=45, ha='right')
+
+# Menampilkan grafik di Streamlit
+st.pyplot(fig)
+
 payment_counts = filtered_df["payment_type"].value_counts().reset_index()
 payment_counts.columns = ["Metode Pembayaran", "Jumlah Transaksi"]
 
@@ -200,13 +228,50 @@ st.pyplot(fig_leg)
 
 # Informasi Penjualan Berdasarkan Kategori Produk
 st.subheader("📊 Informasi Penjualan Berdasarkan Kategori Produk")
-sales_data = filtered_df.groupby("product_category_name")["payment_value"].sum().sort_values(ascending=False).head(20)
-fig, ax = plt.subplots(figsize=(14, 7))
-sales_data.plot(kind='bar', ax=ax, color='blue')
-ax.set_title("Total Pendapatan per Kategori Produk")
-ax.set_xlabel("Kategori Produk")
-ax.set_ylabel("Total Pendapatan (USD)")
+
+# Mengelompokkan data berdasarkan kategori produk dan menghitung total pendapatan
+sales_data = (
+    filtered_df.groupby("product_category_name")["payment_value"]
+    .sum()
+    .sort_values(ascending=True)
+    .tail(20)  # Menampilkan 20 kategori teratas
+)
+
+# Membuat visualisasi
+fig, ax = plt.subplots(figsize=(12, 8))
+sales_data.plot(kind='barh', ax=ax, cmap="viridis", edgecolor='black')
+
+# Menambahkan judul dan label
+ax.set_title("Total Pendapatan per Kategori Produk", fontsize=14)
+ax.set_xlabel("Total Pendapatan (USD)", fontsize=12)
+ax.set_ylabel("Kategori Produk", fontsize=12)
+
+# Menampilkan nilai pada setiap batang
+for index, value in enumerate(sales_data):
+    ax.text(value, index, f"${value:,.0f}", va='center', fontsize=10)
+
+st.pyplot(fig)
+
+sales_data = (
+    filtered_df.groupby("product_category_name")["order_id"]
+    .count()
+    .sort_values(ascending=False)
+    .head(10)  # Top 10 kategori dengan jumlah pesanan terbanyak
+)
+
+# Membuat visualisasi
+fig, ax = plt.subplots(figsize=(12, 6))
+sales_data.plot(kind='bar', ax=ax, color='steelblue', edgecolor='black')
+
+# Menambahkan judul dan label
+ax.set_title("Top 10 Kategori Produk dengan Penjualan Terbanyak", fontsize=14)
+ax.set_xlabel("Kategori Produk", fontsize=12)
+ax.set_ylabel("Jumlah Pesanan", fontsize=12)
+
+# Rotasi label sumbu X agar miring
 plt.xticks(rotation=45, ha='right')
+
+# Menampilkan grafik di Streamlit
 st.pyplot(fig)
 
 # Jumlah Cicilan Masing-Masing Pelanggan
